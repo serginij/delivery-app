@@ -1,5 +1,5 @@
 const { encryptPassword } = require('../../core/utils');
-const { User } = require('../../core/modules/user/user.model');
+const { create } = require('../../core/modules/user/user.module');
 const { STATUS } = require('../../core/utils/constants');
 
 const signup = async (req, res) => {
@@ -7,8 +7,7 @@ const signup = async (req, res) => {
     const { password, ...userData } = req.body;
     const encryptedPassword = await encryptPassword(password);
 
-    const user = new User({ ...userData, password: encryptedPassword });
-    await user.save();
+    const user = await create({ ...userData, password: encryptedPassword });
 
     res.status(200).json({ status: STATUS.OK, data: user });
   } catch (error) {

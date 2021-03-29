@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { signin, passportAuthMiddleware } = require('./auth.service');
+const { signin, passportAuthMiddleware } = require('./ad-viewer.service');
 
 const router = express.Router();
 

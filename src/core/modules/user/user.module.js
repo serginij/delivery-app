@@ -25,4 +25,18 @@ const findByEmail = async (email) => {
   }
 };
 
-module.exports = { create, findByEmail };
+const findById = async (id) => {
+  try {
+    if (typeof id !== 'string') return null;
+
+    const user = await User.findById(id).select('-__v').lean();
+
+    if (!user) return null;
+
+    return user;
+  } catch (err) {
+    return err;
+  }
+};
+
+module.exports = { create, findByEmail, findById };
