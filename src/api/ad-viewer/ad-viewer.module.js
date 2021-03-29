@@ -1,11 +1,11 @@
 const express = require('express');
 
-const { getAds, getAdByid } = require('./ad-viewer.service');
+const { getAds, getAdById } = require('./ad-viewer.service');
 
 const router = express.Router();
 
 router.get('/', getAds);
 
-router.get('/:id', getAdByid);
+router.get('/:id', getAdById);
 
 module.exports = router;

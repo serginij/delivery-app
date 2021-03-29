@@ -1,42 +1,28 @@
 const { User } = require('./user.model');
 
 const create = async (data) => {
-  try {
-    const user = new User(data);
-    await user.save();
+  const user = new User(data);
+  await user.save();
 
-    return user;
-  } catch (err) {
-    return err;
-  }
+  return user;
 };
 
 const findByEmail = async (email) => {
-  try {
-    if (typeof email !== 'string') return null;
+  if (typeof email !== 'string') return null;
 
-    const user = await User.findOne({ email }).select('-__v').lean();
+  const user = await User.findOne({ email }).select('-__v').lean();
+  if (!user) return null;
 
-    if (!user) return null;
-
-    return user;
-  } catch (err) {
-    return err;
-  }
+  return user;
 };
 
 const findById = async (id) => {
-  try {
-    if (typeof id !== 'string') return null;
+  if (typeof id !== 'string') return null;
 
-    const user = await User.findById(id).select('-__v').lean();
+  const user = await User.findById(id).select('-__v').lean();
+  if (!user) return null;
 
-    if (!user) return null;
-
-    return user;
-  } catch (err) {
-    return err;
-  }
+  return user;
 };
 
 module.exports = { create, findByEmail, findById };

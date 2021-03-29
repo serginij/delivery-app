@@ -21,6 +21,12 @@ const getAdById = async (req, res) => {
   try {
     const data = await findByid(id);
 
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: STATUS.ERROR, message: 'Ad not found' });
+    }
+
     res.status(200).json({ status: STATUS.OK, data });
   } catch (error) {
     console.log(error);

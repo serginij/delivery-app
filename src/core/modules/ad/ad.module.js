@@ -1,43 +1,33 @@
 const { Ad } = require('./ad.model');
 
 const create = async (data) => {
-  try {
-    const ad = new Ad(data);
-    await ad.save();
+  const ad = new Ad(data);
+  await ad.save();
 
-    return ad;
-  } catch (err) {
-    return err;
-  }
+  return ad;
 };
 
 const find = async (params) => {
-  try {
-    const { shortText, description, userId, tags } = params;
+  const { shortText, description, userId, tags } = params;
 
-    const ads = await Ad.find({
-      userId,
-      shortText: new RegExp(shortText),
-      description: new RegExp(description),
-      tags: { $all: tags },
-    })
-      .select('-__v')
-      .lean();
+  const userIdParam = userId ? { userId } : {};
 
-    return ads;
-  } catch (err) {
-    return err;
-  }
+  const ads = await Ad.find({
+    ...userIdParam,
+    shortText: new RegExp(shortText),
+    description: new RegExp(description),
+    tags: { $all: tags },
+  })
+    .select('-__v')
+    .lean();
+
+  return ads;
 };
 
 const findByid = async (id) => {
-  try {
-    const ad = await Ad.findById(id).select('-__v').lean();
+  const ad = await Ad.findById(id).select('-__v').lean();
 
-    return ad;
-  } catch (err) {
-    return err;
-  }
+  return ad;
 };
 
 const remove = async (id) => {
