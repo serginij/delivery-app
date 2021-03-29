@@ -6,6 +6,6 @@ services:
       - 3000:3000
     env_file:
       - .env
-    command: npm start
+    command: npm run start:docker
     volumes:
       - ./public:/code/public
