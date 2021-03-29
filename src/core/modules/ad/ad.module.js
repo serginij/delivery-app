@@ -24,7 +24,7 @@ const find = async (params) => {
   return ads;
 };
 
-const findByid = async (id) => {
+const findById = async (id) => {
   const ad = await Ad.findById(id).select('-__v').lean();
 
   return ad;
@@ -43,4 +43,4 @@ const remove = async (id) => {
   }
 };
 
-module.exports = { create, remove, find, findByid };
+module.exports = { create, remove, find, findById };

@@ -16,9 +16,9 @@ const verifyUser = async (email, pwd, done) => {
     if (!user) {
       return done(null, false);
     }
-    const { password, ...userData } = user;
+    const { passwordHash, ...userData } = user;
 
-    if (!(await decryptPassword(password, pwd))) {
+    if (!(await decryptPassword(passwordHash, pwd))) {
       return done(null, false);
     }
 

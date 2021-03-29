@@ -4,7 +4,7 @@ const create = async (data) => {
   const user = new User(data);
   await user.save();
 
-  return user;
+  return await User.findById(user._id).select('-__v -passwordHash').lean();
 };
 
 const findByEmail = async (email) => {

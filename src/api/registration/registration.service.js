@@ -7,7 +7,7 @@ const signup = async (req, res) => {
     const { password, ...userData } = req.body;
     const encryptedPassword = await encryptPassword(password);
 
-    const user = await create({ ...userData, password: encryptedPassword });
+    const user = await create({ ...userData, passwordHash: encryptedPassword });
 
     res.status(200).json({ status: STATUS.OK, data: user });
   } catch (error) {

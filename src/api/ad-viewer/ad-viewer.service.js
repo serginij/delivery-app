@@ -1,4 +1,4 @@
-const { find, findByid } = require('../../core/modules/ad/ad.module');
+const { find, findById } = require('../../core/modules/ad/ad.module');
 const { STATUS } = require('../../core/utils/constants');
 
 const getAds = async (req, res) => {
@@ -19,7 +19,7 @@ const getAds = async (req, res) => {
 const getAdById = async (req, res) => {
   const { id } = req;
   try {
-    const data = await findByid(id);
+    const data = await findById(id);
 
     if (!data) {
       return res

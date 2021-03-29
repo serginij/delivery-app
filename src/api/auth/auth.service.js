@@ -14,6 +14,9 @@ const passportAuthMiddleware = async (req, res, next) => {
         status: STATUS.ERROR,
       };
     }
+    req.user = user;
+
+    //TODO: check why session is not working
 
     next();
   })(req, res, next);
