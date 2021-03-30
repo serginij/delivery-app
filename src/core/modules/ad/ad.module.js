@@ -4,28 +4,30 @@ const create = async (data) => {
   const ad = new Ad(data);
   await ad.save();
 
-  return ad;
+  return await Ad.findById(ad._id).select('-__v -isDeleted').lean();
 };
 
 const find = async (params) => {
   const { shortText, description, userId, tags } = params;
 
   const userIdParam = userId ? { userId } : {};
+  const tagsParam = tags.length ? { tags: { $all: tags } } : {};
 
   const ads = await Ad.find({
     ...userIdParam,
-    shortText: new RegExp(shortText),
-    description: new RegExp(description),
-    tags: { $all: tags },
+    ...tagsParam,
+    shortText: { $regex: shortText },
+    description: { $regex: description },
+    isDeleted: false,
   })
-    .select('-__v')
+    .select('-__v -isDeleted')
     .lean();
 
   return ads;
 };
 
 const findById = async (id) => {
-  const ad = await Ad.findById(id).select('-__v').lean();
+  const ad = await Ad.findById(id).select('-__v -isDeleted').lean();
 
   return ad;
 };

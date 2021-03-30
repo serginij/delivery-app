@@ -7,8 +7,15 @@ const createAd = async (req, res) => {
     const { images } = files;
     const { shortText, description, tags } = body;
 
+    if (!shortText)
+      return res.status(400).json({
+        status: STATUS.ERROR,
+        data: null,
+        message: 'Incorrect format',
+      });
+
     const ad = await create({
-      images: images.map((image) => image.path),
+      images: images?.map((image) => image.path),
       shortText,
       description,
       userId: user._id,

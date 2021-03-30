@@ -2,39 +2,31 @@ const passport = require('passport');
 
 const { STATUS } = require('../../core/utils/constants');
 
-const passportAuthMiddleware = async (req, res, next) => {
+const signin = async (req, res, next) => {
   passport.authenticate('local', (error, user) => {
-    if (error) {
-      req.customError = { error, status: STATUS.ERROR };
-    }
+    req.logIn(user, () => {
+      let customError = null;
 
-    if (!user) {
-      req.customError = {
-        error: 'Invalid email or password',
-        status: STATUS.ERROR,
-      };
-    }
-    req.user = user;
+      if (error) {
+        customError = { error, status: STATUS.ERROR };
+      }
 
-    //TODO: check why session is not working
+      if (!user) {
+        customError = {
+          error: 'Invalid email or password',
+          status: STATUS.ERROR,
+        };
+      }
 
-    next();
+      if (customError) {
+        return res.status(401).json(customError);
+      }
+
+      res.status(200).json({ status: STATUS.OK, data: user });
+    });
   })(req, res, next);
-};
-
-const signin = async (req, res) => {
-  const customError = req?.customError;
-
-  if (customError) {
-    return res.status(401).json(customError);
-  }
-
-  const user = req?.user;
-
-  res.status(200).json({ status: STATUS.OK, data: user });
 };
 
 module.exports = {
   signin,
-  passportAuthMiddleware,
 };

@@ -17,7 +17,7 @@ const getAds = async (req, res) => {
 };
 
 const getAdById = async (req, res) => {
-  const { id } = req;
+  const { id } = req.params;
   try {
     const data = await findById(id);
 

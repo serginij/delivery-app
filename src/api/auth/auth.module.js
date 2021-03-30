@@ -1,9 +1,9 @@
 const express = require('express');
 
-const { signin, passportAuthMiddleware } = require('./auth.service');
+const { signin } = require('./auth.service');
 
 const router = express.Router();
 
-router.post('/signin', passportAuthMiddleware, signin);
+router.post('/signin', signin);
 
 module.exports = router;
