@@ -4,7 +4,12 @@ const passport = require('passport');
 
 const { notFoundMiddleware, authMiddleware } = require('./core/middleware');
 const { connectToDb, app, httpServer } = require('./core/utils');
-const { registrationModule, authModule } = require('./modules');
+const {
+  registrationModule,
+  authModule,
+  adViewerModule,
+  adManagerModule,
+} = require('./api');
 
 const PORT = process.env.PORT || 3000;
 
@@ -25,6 +30,8 @@ app.use(authMiddleware);
 
 app.use('/api/registration', registrationModule);
 app.use('/api/auth', authModule);
+app.use('/api/ad-viewer', adViewerModule);
+app.use('/api/ad-manager', adManagerModule);
 
 app.use(notFoundMiddleware);
 

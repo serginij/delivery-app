@@ -1,8 +1,8 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-
-const { User } = require('../modules/user/user.model');
 const { decryptPassword } = require('./bcrypt');
+
+const { findByEmail, findById } = require('../modules/user/user.module');
 
 /**
  * @param {String} email
@@ -11,14 +11,14 @@ const { decryptPassword } = require('./bcrypt');
  */
 const verifyUser = async (email, pwd, done) => {
   try {
-    const user = await User.findOne({ email }).select('-__v').lean();
+    const user = await findByEmail(email);
 
     if (!user) {
       return done(null, false);
     }
-    const { password, ...userData } = user;
+    const { passwordHash, ...userData } = user;
 
-    if (!(await decryptPassword(password, pwd))) {
+    if (!(await decryptPassword(passwordHash, pwd))) {
       return done(null, false);
     }
 
@@ -42,7 +42,7 @@ passport.serializeUser(function (user, cb) {
 
 passport.deserializeUser(async (id, cb) => {
   try {
-    const user = await User.findById(id).select('-__v').lean();
+    const user = await findById(id);
     cb(null, user);
   } catch (err) {
     return cb(err);
