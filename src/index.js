@@ -9,6 +9,7 @@ const {
   authModule,
   adViewerModule,
   adManagerModule,
+  communicationModule,
 } = require('./api');
 
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ app.use('/api/registration', registrationModule);
 app.use('/api/auth', authModule);
 app.use('/api/ad-viewer', adViewerModule);
 app.use('/api/ad-manager', adManagerModule);
+app.use('/api/communication', communicationModule);
 
 app.use(notFoundMiddleware);
 
