@@ -10,7 +10,7 @@ const messageSchema = new Schema({
 const chatSchema = new Schema(
   {
     users: { type: [String], required: true },
-    messages: { type: [messageSchema], default: [] },
+    messages: { type: [String], default: [] },
   },
   { timestamps: true },
 );

@@ -1,50 +1,66 @@
 const express = require('express');
 const socketIO = require('socket.io');
+
 const {
   getHistory,
   find,
   sendMessage,
   subscribe,
 } = require('../../core/modules/chat/chat.module');
-
+const { sessionMiddleware } = require('../../core/middleware');
 const { httpServer } = require('../../core/utils');
 
 const router = express.Router();
 const io = socketIO(httpServer);
 
 // TODO: extract functions into service
-io.on('connection', (socket) => {
-  const { id } = socket;
 
-  const user = socket.request?.user;
+io.use((socket, next) => {
+  // Wrap the express middleware
+  sessionMiddleware(socket.request, {}, next);
+}).on('connection', (socket) => {
+  try {
+    const { id } = socket;
 
-  console.log(id, user);
+    const userId = socket.request.session.passport.user;
 
-  const processChatMessages = (data) => {
-    socket.emit('newMessage', data);
-  };
+    console.log(id, userId);
 
-  subscribe(processChatMessages);
+    const processChatMessages = (data) => {
+      const { chat, message } = JSON.parse(data);
+      console.log(data, chat?.users?.includes(userId));
+      if (chat?.users?.includes(userId)) {
+        // TODO: add roles
+        socket.emit('newMessage', message);
+      }
+    };
 
-  socket.on('getHistory', async (id) => {
-    const chat = await find([id, user._id]);
+    subscribe(processChatMessages);
 
-    const history = await getHistory(chat._id);
+    socket.on('getHistory', async (id) => {
+      const chat = await find([id, userId]);
 
-    socket.emit('chatHistory', history || []);
-  });
+      console.log('getHistory socket chat', chat);
+      if (chat.length === 1) {
+        const history = await getHistory(chat[0]._id);
+        socket.emit('chatHistory', history || []);
+      }
+    });
 
-  socket.on('sendMessage', async (data) => {
-    // const { receiver, text } = data;
+    socket.on('sendMessage', async (message) => {
+      // const { receiver, text } = data;
+      const data = JSON.parse(message);
+      console.log('sendMessage', data);
 
-    console.log('sendMessage', data);
+      await sendMessage({ ...data, author: userId });
+    });
 
-    await sendMessage({ ...data, author: user._id });
-  });
-
-  socket.on('disconnect', () => {
-    console.log(`user ${socket.id} disconnected`);
-  });
+    socket.on('disconnect', () => {
+      console.log(`user ${socket.id} disconnected`);
+    });
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 module.exports = router;

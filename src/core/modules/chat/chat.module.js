@@ -8,28 +8,32 @@ const find = async (users) => {
   return chat || null;
 };
 
+const findById = async (chatId) => {
+  return await Chat.findById(chatId).select('-__v').lean();
+};
+
 const sendMessage = async (data) => {
-  const { text, ...users } = data;
+  const { text, author, receiver } = data;
+  const users = [author, receiver];
 
   let chat = await Chat.find({ users: { $all: users } })
     .select('-__v')
     .lean();
 
   if (!chat?._id) {
+    console.log('chat not found');
     chat = new Chat({ users });
     await chat.save();
   }
 
-  const { author } = data;
+  console.log('chat', chat);
 
   const message = new Message({ author, text });
   await message.save();
 
-  //TODO: check if new message & chat instances has correct format
-
-  console.log(chat, message);
-
-  await Chat.findByIdAndUpdate(chat._id, { messages: { $push: message } });
+  await Chat.findByIdAndUpdate(chat._id, {
+    $push: { messages: message._id },
+  });
 
   return message;
 };
@@ -37,16 +41,30 @@ const sendMessage = async (data) => {
 const subscribe = (cb) => {
   const chatEventEmitter = Chat.watch();
 
-  chatEventEmitter.on('change', (change) => {
-    console.log(JSON.stringify(change));
-    cb(JSON.stringify(change));
+  chatEventEmitter.on('change', async (change) => {
+    const messages = change?.updateDescription?.updatedFields?.messages;
+    if (change.operationType === 'update' && messages?.length) {
+      const chatId = change.documentKey._id;
+      const messageId = messages.pop();
+
+      const message = await Message.findById(messageId).select('-__v').lean();
+      const chat = await findById(chatId);
+
+      if (message && chat) {
+        cb(JSON.stringify({ chat, message }));
+      }
+      // const { messages, chat } = getHistory(chatId, true);
+
+      //  cb(JSON.stringify({ chat, messages }));
+    }
   });
 };
 
 const getHistory = async (chatId) => {
-  const messages = await Chat.findById(chatId).select('messages').lean();
+  const chat = await Chat.findById(chatId).select('-__v').lean();
 
-  console.log('chat.module getHistory', messages);
+  const messages = await Message.find({ _id: { $in: chat?.messages || [] } });
+  console.log('chat.module getHistory', chatId, messages);
 
   return messages;
 };
