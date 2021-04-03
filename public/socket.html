@@ -41,6 +41,12 @@
                     <input type="text" id="receiver" required class="form-control" value="123" />
                   </div>
 
+                  <div class="text-right">
+                    <button type="button" id='connect' class="btn btn-sm btn-primary">
+                        Connect
+                    </button>
+                  </div>
+
                   <div class="form-group mb-2">
                     <label class='card-label'>All messages</label>
                     <div id="list" class="card list-group" style="min-height: 40px; max-height: 400px; overflow-y: scroll;"></div>
@@ -61,18 +67,28 @@
                           Send
                       </button>
                   </div>
-                </div>
+                
+                  <div class="alert alert-success" role="alert" id='sucessAlert'>
+                    Request succeeded
+                  </div>
+                  <div class="alert alert-danger" role="alert" id='errorAlert'>
+                    Request failed
+                  </div>
+              </div>
             </div>
         </div>
       </div>
+      
       <script>
-          let roomName = location.pathname.split('/').pop();
+          // Chat id hardcoded to test chat functionality
+          let roomName = "sfdo32ds12edd2112";
           let socket;
           const messagesList = document.querySelector('#list');
           const messageInput = document.querySelector('#chatMessage');
           const receiverInput = document.querySelector('#receiver');
           const send = document.querySelector('#send-room');
           const login = document.querySelector('#login')
+          const connect = document.querySelector('#connect')
 
           const getTmp = (msg) => {
               return `
@@ -86,6 +102,42 @@
               `;
           };
 
+          connect.addEventListener('click', async () => {
+            const res = await fetch('/api/communication/findChat', {
+              method: "POST",
+              body: JSON.stringify({
+                receiverId: receiverInput.value
+              }),
+              headers: {'Content-Type': 'application/json'}
+            })
+
+            const json = await res.json()
+
+            if(json) {
+              const { data } = json
+
+              if(data) {
+                  socket?.disconnect()
+                  socket = await io.connect('/', {query: `roomName=${data._id}`})
+
+                socket.emit('getHistory', receiverInput.value)
+
+                socket.on('chatHistory', (messages) => {
+                  messagesList.innerHTML = ""
+                  messages.map(message => {
+                      const div = getTmp(message);
+                      messagesList.insertAdjacentHTML('beforeend', div);
+                    })
+                });
+                
+                socket.on('newMessage', (message) => {
+                    const div = getTmp(message);
+                    messagesList.insertAdjacentHTML('beforeend', div);
+                })
+              }
+            }
+          })
+
           send.addEventListener('click', () => {
               socket.emit('sendMessage', JSON.stringify({
                   receiver: receiverInput.value,
@@ -93,7 +145,7 @@
               }));
               messageInput.value = "";
           });
-          
+
           login.addEventListener('click', async () => {
             const res = await fetch('/api/auth/signin', {
               method: 'POST',
@@ -104,25 +156,7 @@
               headers: {'Content-Type': 'application/json'}
             })
 
-            if(res) {
-              console.log(res)
-              socket = io.connect('/')
-
-              // Check why history is not receiving
-              socket.on('chatHistory', (messages) => {
-                console.log('chatHistory', messages)
-                messages.map(message => {
-                  const div = getTmp(message);
-                  messagesList.insertAdjacentHTML('beforeend', div);
-                })
-              });
-              
-              socket.on('newMessage', (data) => {
-                console.log(JSON.parse(data))
-              })
-
-              socket.emit('getHistory', receiverInput.value)
-            }
+            console.log(res)
           })
       </script>
     </div>
