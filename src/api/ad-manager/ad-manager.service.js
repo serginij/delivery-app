@@ -30,11 +30,12 @@ const createAd = async (req, res) => {
 };
 
 const deleteAd = async (req, res) => {
-  const { id, user } = req;
+  const { id } = req.params;
+  const { user } = req;
   try {
-    const ad = findById(id);
+    const ad = await findById(id);
 
-    if (ad.userId !== user._id) {
+    if (ad.userId.toString() !== user._id.toString()) {
       return res.status(403).json({ status: STATUS.ERROR, data: 'No access' });
     }
 

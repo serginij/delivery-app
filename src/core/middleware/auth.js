@@ -3,7 +3,9 @@ const { STATUS } = require('../utils/constants');
 module.exports = (req, res, next) => {
   if (
     (!req.isAuthenticated || !req.isAuthenticated()) &&
-    !RegExp(/api\/auth|api\/registration|api\/ad-viewer/).test(req.path)
+    !RegExp(/api\/auth|api\/registration|api\/ad-viewer|socket.html/).test(
+      req.path,
+    )
   ) {
     return res
       .status(401)

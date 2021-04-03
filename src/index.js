@@ -1,25 +1,25 @@
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const express = require('express');
 
-const { notFoundMiddleware, authMiddleware } = require('./core/middleware');
+const {
+  notFoundMiddleware,
+  authMiddleware,
+  sessionMiddleware,
+} = require('./core/middleware');
 const { connectToDb, app, httpServer } = require('./core/utils');
 const {
   registrationModule,
   authModule,
   adViewerModule,
   adManagerModule,
+  communicationModule,
 } = require('./api');
 
 const PORT = process.env.PORT || 3000;
 
-app.use(
-  require('express-session')({
-    secret: process.env.COOKIE_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  }),
-);
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors());
@@ -32,6 +32,8 @@ app.use('/api/registration', registrationModule);
 app.use('/api/auth', authModule);
 app.use('/api/ad-viewer', adViewerModule);
 app.use('/api/ad-manager', adManagerModule);
+app.use('/api/communication', communicationModule);
+app.use(express.static('public'));
 
 app.use(notFoundMiddleware);
 
