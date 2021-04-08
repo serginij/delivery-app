@@ -7,6 +7,7 @@ const {
   notFoundMiddleware,
   authMiddleware,
   sessionMiddleware,
+  serverErrorMiddleware,
 } = require('./core/middleware');
 const { connectToDb, app, httpServer } = require('./core/utils');
 const {
@@ -36,6 +37,7 @@ app.use('/api/communication', communicationModule);
 app.use(express.static('public'));
 
 app.use(notFoundMiddleware);
+app.use(serverErrorMiddleware);
 
 const start = async () => {
   try {

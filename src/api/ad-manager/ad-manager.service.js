@@ -1,7 +1,7 @@
 const { remove, create, findById } = require('../../core/modules/ad/ad.module');
 const { STATUS } = require('../../core/utils/constants');
 
-const createAd = async (req, res) => {
+const createAd = async (req, res, next) => {
   try {
     const { files, body, user } = req;
     const { images } = files;
@@ -25,11 +25,11 @@ const createAd = async (req, res) => {
     res.status(200).json({ status: STATUS.OK, data: ad });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: STATUS.ERROR, error });
+    next(error);
   }
 };
 
-const deleteAd = async (req, res) => {
+const deleteAd = async (req, res, next) => {
   const { id } = req.params;
   const { user } = req;
   try {
@@ -44,7 +44,7 @@ const deleteAd = async (req, res) => {
     res.status(200).json({ status: STATUS.OK, data: isOk });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: STATUS.ERROR, error });
+    next(error);
   }
 };
 

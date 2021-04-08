@@ -1,7 +1,7 @@
 const { find, findById } = require('../../core/modules/ad/ad.module');
 const { STATUS } = require('../../core/utils/constants');
 
-const getAds = async (req, res) => {
+const getAds = async (req, res, next) => {
   const userId = req.userId || '';
   const shortText = req.shortText || '';
   const description = req.description || '';
@@ -12,11 +12,11 @@ const getAds = async (req, res) => {
     res.status(200).json({ status: STATUS.OK, data });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: STATUS.ERROR, error });
+    next(error);
   }
 };
 
-const getAdById = async (req, res) => {
+const getAdById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const data = await findById(id);
@@ -30,7 +30,7 @@ const getAdById = async (req, res) => {
     res.status(200).json({ status: STATUS.OK, data });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: STATUS.ERROR, error });
+    next(error);
   }
 };
 
